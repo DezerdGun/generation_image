@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Генерация бренда</title>
+</head>
+<body>
+    <h1>Введите ключевые слова для бренда</h1>
+    <form id="brandForm">
+        <input type="text" name="brand_name" id="brand_name" placeholder="Введите ключевые слова" required>
+        <button type="submit">Сгенерировать изображение</button>
+    </form>
+
+    <h2>Сгенерированное изображение:</h2>
+    <img id="brandImage" src="" alt="Ваше изображение бренда" style="max-width: 100%;">
+
+    <script>
+        document.getElementById('brandForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const brandName = document.getElementById('brand_name').value;
+
+            const formData = new FormData();
+            formData.append('brand_name', brandName);
+
+            fetch('/generate_brand_image', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const imageUrl = URL.createObjectURL(blob);
+                document.getElementById('brandImage').src = imageUrl;
+            })
+            .catch(error => {
+                console.error('Ошибка при генерации изображения:', error);
+            });
+        });
+    </script>
+</body>
+</html>
