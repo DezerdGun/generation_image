@@ -4,11 +4,15 @@ import random
 from utils import (generate_random_color, choose_random_font, create_gradient_background)
                    # draw_person,)
 
-# Рандомизация цвета текста
 def random_text_color():
-    return generate_random_color()
+    return (random.randint(50, 255), random.randint(50, 255), random.randint(50, 255))
 
-# Рисование текста на изображении
+def generate_gradient_color(start_color):
+    end_color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+    return [(start_color[0] + (end_color[0] - start_color[0]) * i // 100,
+             start_color[1] + (end_color[1] - start_color[1]) * i // 100,
+             start_color[2] + (end_color[2] - start_color[2]) * i // 100) for i in range(101)]
+
 def draw_text(draw, brand_name, width, height):
     font_path = choose_random_font()  # Выбираем случайный шрифт
     font = ImageFont.truetype(font_path, size=random.randint(40, 70))
@@ -22,37 +26,37 @@ def draw_text(draw, brand_name, width, height):
     # Случайный цвет текста
     text_color = random_text_color()
 
-    # Случайное оформление текста
-    effect_type = random.choice(['shadow', 'outline', 'gradient', 'normal'])
+    # Сложный эффект оформления текста
+    effect_type = random.choice(['shadow', 'outline', 'gradient', '3d', 'normal'])
 
     if effect_type == 'shadow':
         shadow_offset = random.randint(5, 10)
         shadow_color = (text_color[0] // 2, text_color[1] // 2, text_color[2] // 2)
-        draw.text((text_x + shadow_offset, text_y + shadow_offset), brand_name, font=font, fill=shadow_color)
+        for i in range(3):  # Многослойная тень
+            draw.text((text_x + shadow_offset * i, text_y + shadow_offset * i), brand_name, font=font, fill=shadow_color)
 
     elif effect_type == 'outline':
         outline_thickness = random.randint(2, 5)
         outline_color = random_text_color()
         for offset in range(-outline_thickness, outline_thickness + 1):
             draw.text((text_x + offset, text_y + offset), brand_name, font=font, fill=outline_color)
-        # Рисуем основной текст поверх
-        draw.text((text_x, text_y), brand_name, font=font, fill=text_color)
+        draw.text((text_x, text_y), brand_name, font=font, fill=text_color)  # Основной текст поверх
 
     elif effect_type == 'gradient':
-        # Градиентная заливка текста
-        gradient = generate_gradient_color(text_color)  # Эта функция генерирует градиентный цвет
-        draw.text((text_x, text_y), brand_name, font=font, fill=gradient)
+        gradient = generate_gradient_color(text_color)  # Градиент
+        for i, color in enumerate(gradient):
+            offset = i * (text_height // 100)
+            draw.text((text_x, text_y + offset), brand_name, font=font, fill=color)
+
+    elif effect_type == '3d':
+        shadow_offset = random.randint(5, 15)
+        shadow_color = (text_color[0] // 3, text_color[1] // 3, text_color[2] // 3)
+        for i in range(3):
+            draw.text((text_x + shadow_offset * i, text_y + shadow_offset * i), brand_name, font=font, fill=shadow_color)
+        draw.text((text_x, text_y), brand_name, font=font, fill=text_color)  # Основной текст
 
     else:
-        # Обычный текст
         draw.text((text_x, text_y), brand_name, font=font, fill=text_color)
-
-# Функция для генерации градиента (пример)
-def generate_gradient_color(base_color):
-    r, g, b = base_color
-    gradient = f"rgb({min(r + 50, 255)}, {min(g + 50, 255)}, {min(b + 50, 255)})"
-    return gradient
-
 
 # Рисование объекта (круг, прямоугольник или звезда) на изображении
 def draw_shadow(draw, object_type, x, y, size, color):
